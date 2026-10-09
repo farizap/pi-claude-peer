@@ -301,6 +301,16 @@ export default function claudePeerExtension(pi: ExtensionAPI) {
   }
 
   // Live teammate roster above the editor — "teammates: name(!!) name2 · pid"
+  // Peers sharing this session's cwd — the actual teammates. Claude doesn't
+  // tag a team/group on the record, so cwd is the discriminator: a teammate
+  // works the same directory as you. Other-workspace sessions are filtered out.
+  function teammates() {
+    const myCwd = bridge?.cwd;
+    return readPeers().filter(
+      (p) => p.sessionId !== bridge?.sessionId && p.name && (!myCwd || p.cwd === myCwd),
+    );
+  }
+
   // on one line, refreshed every 3s. Shows the lead/any peer who is around.
   let rosterTimer: ReturnType<typeof setInterval> | undefined;
   function startRosterWidget(ctx: any) {
@@ -308,7 +318,7 @@ export default function claudePeerExtension(pi: ExtensionAPI) {
     if (!ui?.setWidget || rosterTimer) return;
     const render = () => {
       if (!bridge) return;
-      const peers = readPeers().filter((p) => p.sessionId !== bridge.sessionId && p.name);
+      const peers = teammates();
       // Fit one line to a sane width: join short names, stop at ~60 chars,
       // append `+N more`. Never wraps.
       const names = peers.map((p) => String(p.name).replace(/\s+/g, "-"));
@@ -414,7 +424,7 @@ export default function claudePeerExtension(pi: ExtensionAPI) {
         const atMatch = /(^|\s)#([A-Za-z0-9_-]*)$/.exec(textBeforeCursor);
         if (!atMatch) return current.getSuggestions(lines, cursorLine, cursorCol, options);
         const partial = atMatch[2].toLowerCase();
-        const peers = readPeers().filter((p) => p.sessionId !== bridge?.sessionId && p.name);
+        const peers = teammates();
         const items = peers
           .filter((p) => (p.name ?? "").toLowerCase().startsWith(partial))
           .map((p) => ({

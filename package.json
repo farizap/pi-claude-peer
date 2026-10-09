@@ -1,6 +1,6 @@
 {
   "name": "pi-claude-peer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Pi coding agent extension: join Claude Code's peer-messaging system as a real peer — ListAgents-discoverable, SendMessage-reachable, able to reply.",
   "type": "module",
   "keywords": [
