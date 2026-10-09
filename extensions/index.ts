@@ -61,7 +61,7 @@ function enabled(): boolean {
   // To keep a solo pi from littering ~/.claude/sessions + opening a socket when
   // no Claude is around, we ALSO require at least one live peer already
   // registered (a real teammate/session to talk to). That means the feature
-  // activates automatically inside a multi-agent herdr/team setup and stays
+  // activates automatically inside a multi-agent/multi-pane setup and stays
   // inert on a lone pi.
   const v = process.env[FLAG];
   if (v === "0" || v === "false") return false;
