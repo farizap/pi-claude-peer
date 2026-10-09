@@ -1,0 +1,39 @@
+{
+  "name": "pi-claude-peer",
+  "version": "0.1.0",
+  "description": "Pi coding agent extension: join Claude Code's peer-messaging system as a real peer — ListAgents-discoverable, SendMessage-reachable, able to reply.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "claude-code",
+    "peer-messaging",
+    "teammates"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farizap/pi-claude-peer.git"
+  },
+  "homepage": "https://github.com/farizap/pi-claude-peer#readme",
+  "bugs": {
+    "url": "https://github.com/farizap/pi-claude-peer/issues"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/index.ts"
+    ]
+  },
+  "files": [
+    "extensions/",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
