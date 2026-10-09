@@ -14,8 +14,10 @@
  * `isSaneEpochMs` check rejects anything else and the peer is silently dropped
  * from ListAgents.
  *
- * Disabled by default. Enable with: PI_CLAUDE_PEER=1
- * Optional name override:        PI_PEER_NAME=<name>
+ * Enabled by default once installed — activates whenever at least one other
+ * live session is registered in ~/.claude/sessions (a real peer to talk to).
+ * Disable with:          PI_CLAUDE_PEER=0
+ * Optional name override: PI_PEER_NAME=<name>
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -55,7 +57,38 @@ interface Bridge {
 }
 
 function enabled(): boolean {
-  return process.env[FLAG] === "1" || process.env[FLAG] === "true";
+  // Enabled by default once installed. PI_CLAUDE_PEER=0 disables.
+  // To keep a solo pi from littering ~/.claude/sessions + opening a socket when
+  // no Claude is around, we ALSO require at least one live peer already
+  // registered (a real teammate/session to talk to). That means the feature
+  // activates automatically inside a multi-agent herdr/team setup and stays
+  // inert on a lone pi.
+  const v = process.env[FLAG];
+  if (v === "0" || v === "false") return false;
+  // Explicit opt-in always enables (skips the peer-presence gate).
+  if (v === "1" || v === "true") return true;
+  // Default: on, but only when a real peer exists to talk to.
+  return claudePeersPresent();
+}
+
+/** True iff at least one other live session is registered in ~/.claude/sessions. */
+function claudePeersPresent(): boolean {
+  try {
+    for (const f of fs.readdirSync(SESSIONS_DIR)) {
+      if (!f.endsWith(".json")) continue;
+      const pid = parseInt(f, 10);
+      if (!Number.isFinite(pid) || pid === process.pid) continue;
+      try {
+        process.kill(pid, 0); // alive
+        return true;
+      } catch {
+        /* dead */
+      }
+    }
+  } catch {
+    /* no sessions dir */
+  }
+  return false;
 }
 
 /** Process start time in the exact format Claude expects: `ps -o lstart=` in UTC. */

@@ -13,14 +13,36 @@ pi install git:github.com/farizap/pi-claude-peer
 
 ## Enable
 
-Disabled by default (stability flag):
+**On by default** once installed. The extension activates when at least one
+other live session is registered in `~/.claude/sessions` — i.e. a real Claude
+or pi teammate to talk to. On a lone pi (no peers) it stays inert, so nothing
+is written or opened needlessly.
+
+| Env | Effect |
+|---|---|
+| *(unset)* | auto-on when peers exist |
+| `PI_CLAUDE_PEER=0` | fully off |
+| `PI_PEER_NAME=<name>` | override the peer name (default `<cwd>-pi-<pid36>`) |
 
 ```bash
-PI_CLAUDE_PEER=1 pi                      # default name: <cwd-basename>-pi-<pid36>
-PI_CLAUDE_PEER=1 PI_PEER_NAME=myname pi  # explicit peer name
+pi                                # peers automatically if teammates are up
+PI_PEER_NAME=myname pi            # explicit peer name
+PI_CLAUDE_PEER=0 pi               # disabled
 ```
 
-Unset or `0` → the extension does nothing.
+### Always-on opt-out (optional)
+
+If you want it *always* active — even as the first/only session — export the
+flag in your shell rc instead of relying on the presence gate:
+
+```bash
+# ~/.zshrc or ~/.bashrc
+export PI_PEER_NAME=myname        # optional stable name
+# PI_CLAUDE_PEER is opt-out; no need to set it to enable
+```
+
+To force it on even with no peers around, set `PI_CLAUDE_PEER=1` explicitly
+(the presence check is skipped when you opt in explicitly — see below).
 
 ---
 ## #-mention (peer send)
